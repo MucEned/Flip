@@ -1070,7 +1070,11 @@ MonoBehaviour:
   player: {fileID: 50975054}
   opponent: {fileID: 258135762}
   playerData: {fileID: 11400000, guid: b8aada143bc654a4d92573cc0f0ab13b, type: 2}
-  opponentData: {fileID: 11400000, guid: a4aae358c77447747baeb07420c0f17b, type: 2}
+  opponentData:
+  - {fileID: 11400000, guid: a4aae358c77447747baeb07420c0f17b, type: 2}
+  - {fileID: 11400000, guid: 12f392162cfe98a4dbe5bcb4c86df148, type: 2}
+  - {fileID: 11400000, guid: abdfdc8f4f7a6c541bc5c18062ca9bff, type: 2}
+  - {fileID: 11400000, guid: 5d1dbe0bb2651794788030c42df3552d, type: 2}
   battleController: {fileID: 291544340}
 --- !u!114 &291544340
 MonoBehaviour:

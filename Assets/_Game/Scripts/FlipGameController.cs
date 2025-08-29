@@ -11,10 +11,11 @@ namespace TaoistFlip
         [SerializeField] private PlayerController player;
         [SerializeField] private OpponentController opponent;
         [SerializeField] private ActorData playerData;
-        [SerializeField] private ActorData opponentData;
+        [SerializeField] private List<ActorData> opponentData;
         [SerializeField] private BattleController battleController;
 
         public bool ActionPhase {get; private set;}
+        private int currentOpponentindex = 0;
 
         private eGameState mainState = eGameState.None;
 
@@ -82,7 +83,7 @@ namespace TaoistFlip
         }
         private void LoadOpponent()
         {
-            this.opponent.Setup(opponentData, OnOpponentDead);
+            this.opponent.Setup(opponentData[currentOpponentindex], OnOpponentDead);
         }
         private void OnPlayerDead()
         {
@@ -92,6 +93,7 @@ namespace TaoistFlip
         private void OnOpponentDead()
         {
             OnEndBattle();
+            currentOpponentindex = Mathf.Clamp(currentOpponentindex + 1, 0, opponentData.Count - 1);
             ReSpawnOpponent().Forget();
         }
 //------TEMP-------------------------------------------
