@@ -1,28 +1,26 @@
 using UnityEngine;
 using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
+using Unity.VisualScripting;
+using System.Text.RegularExpressions;
 
 namespace TaoistFlip
 {
     public class FlipGameController : MonoBehaviour
     {
         public static FlipGameController Instance { get; private set;}
-        [SerializeField] private ActorController player;
-        [SerializeField] private ActorController opponent;
+        [SerializeField] private PlayerController player;
+        [SerializeField] private OpponentController opponent;
         [SerializeField] private PlayerCardData playerData;
         [SerializeField] private PlayerCardData opponentData;
         [SerializeField] private CardDictionary cardDictionary;
-        [SerializeField] private FieldGridController field;
         [SerializeField] private GameObject resetButton;
 
-        private List<CardComponent> currentFlippingCards = new();
-        private int maxFlipCard = 2;
+        private BattleController battleController;
         public bool ActionPhase {get; private set;}
 
-
-        [SerializeField] private int balanceTurn = 3;
-        private float currentOpponentActionTime = 0;
-        private float timeForEachPlayerAction = 0.34f;
+        private eGameState mainState;
+        private eGameBattleState microState;
 
         private void Awake()
         {
@@ -31,106 +29,75 @@ namespace TaoistFlip
 
         private void Start()
         {
-            OnGameStart();
+            //testing
+            ChangeMainState(eGameState.Starting);
         }
 
-        private void OnGameStart()
+        private void ChangeMainState(eGameState newState)
         {
-            ActionPhase = true;
-            field.GenerateField(playerData.Deck);
-            CalculateSpeed();
-            OpponentDrawCard();
-        }
+            if (this.mainState == newState)
+                return;
 
-        public void ResetField()
-        {
-            ActionPhase = true;
-            field.GenerateField(playerData.Deck);
-            CalculateSpeed();
-            OnPlayerEndTurn();
-        }
-
-        private void CalculateSpeed()
-        {
-            timeForEachPlayerAction = 1f / (balanceTurn * ((float)player.Speed / (float)opponent.Speed));
-        }
-
-        public void OnCardFlip(CardComponent card)
-        {
-            foreach (var flippingCard in currentFlippingCards)
+            this.mainState = newState;
+            switch (this.mainState)
             {
-                if (flippingCard.CardData.CardID == card.CardData.CardID)
-                {
-                    OnScore(flippingCard, card).Forget();
-                    return;
-                }
-            }
-            currentFlippingCards.Add(card);
-            if (currentFlippingCards.Count >= maxFlipCard)
-            {
-                ActionPhase = false;
-                FlipDown().Forget();
+                case eGameState.Starting:
+                OnInitBattle();
+                break;
+                case eGameState.BattlePhase:
+                OnStartBattle();
+                break;
+                case eGameState.Ending:
+                OnEndBattle();
+                break;
             }
         }
 
-        private async UniTask FlipDown()
+        private void OnInitBattle()
         {
-            await UniTask.WaitForSeconds(1);
-            OnPlayerStartTurn();
-            foreach (var flippingCard in currentFlippingCards)
-            {
-                flippingCard.FlipDown();
-            }
-            OnPlayerEndTurn();
-            ActionPhase = true;
-            currentFlippingCards.Clear();
+            LoadPlayerData();
+            LoadOpponent();
+            this.battleController.Setup(player, opponent);
+
+            //On data loaded
+            ChangeMainState(eGameState.BattlePhase);
         }
 
-        private async UniTask OnScore(CardComponent card1, CardComponent card2)
+        private void OnStartBattle()
         {
-            OnPlayerStartTurn();
-            card1.CardData.OnCardActive(player, opponent);
-
-            await UniTask.WaitForSeconds(1);
-            card1.ShowDown();
-            card2.ShowDown();
-            currentFlippingCards.Clear();
-            OnPlayerEndTurn();
+            battleController.StartGame();
         }
 
-        private void OnPlayerStartTurn()
+        private void OnEndBattle()
         {
-            player.OnStartTurn();
-            opponent.OnStartTurn();
+            
+        }
+        
+//-------------------------------------------------
+        private void LoadPlayerData()
+        {
+            
         }
 
-        private void OnPlayerEndTurn()
+        private void LoadOpponent()
         {
-            currentOpponentActionTime += timeForEachPlayerAction;
-
-            while (currentOpponentActionTime > 1)
-            {
-                DoOpponentAction();
-                currentOpponentActionTime -= 1;
-            }
-
-            opponent.UpdateActionBar(currentOpponentActionTime);
-
-            player.OnEndTurn();
-            opponent.OnEndTurn();
+            
         }
+//-------------------------------------------------
+    }
 
-        private void DoOpponentAction()
-        {
-            opponent.AutoDoAction(this.player);
-            OpponentDrawCard();
-        }
+    public enum eGameState
+    {
+        Starting,
+        BattlePhase,
+        Ending,
+    }
 
-        private void OpponentDrawCard()
-        {
-            int randomCard = UnityEngine.Random.Range(0, this.opponentData.Deck.Count);
-            BaseCard currentCard = this.opponentData.Deck[randomCard];
-            opponent.SetCurrentCard(currentCard);
-        }
+    public class MatchData
+    {
+        public int Turn;
+        public int MaxFlipCard = 2;
+        public float TimeForEachPlayerAction = 0f;
+        public List<CardComponent> CurrentFlippingCards = new();
     }
 }

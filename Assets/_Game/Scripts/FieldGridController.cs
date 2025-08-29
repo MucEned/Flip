@@ -8,14 +8,15 @@ namespace TaoistFlip
 {
     public class FieldGridController : MonoBehaviour
     {
-        [SerializeField] private FlipGameController controller;
+        [SerializeField] private BattleController controller;
         [SerializeField] private int gridSize = 4;
         [SerializeField] private Transform fieldContainer;
         [SerializeField] private AssetReference cardSample;
 
         private CardComponent[,] cardList = new CardComponent[0, 0];
-        public void GenerateField(List<BaseCard> playerDeck)
+        public void GenerateField(PlayerController playerController)
         {
+            List<BaseCard> playerDeck = playerController.GetDeck();
             cardList = new CardComponent[this.gridSize, this.gridSize];
             foreach (Transform child in fieldContainer)
             {

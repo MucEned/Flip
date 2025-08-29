@@ -7,22 +7,15 @@ namespace TaoistFlip
 {
     public class ActorController : MonoBehaviour
     {
-        [SerializeField] private Animator animator;
-        [SerializeField] private Slider actionBar;
+        [SerializeField] protected Animator animator;
+        [SerializeField] protected Slider actionBar;
+        [SerializeField] protected TMP_Text HPtxt;
+        [SerializeField] protected TMP_Text Shieldtxt;
 
-        [SerializeField] private TMP_Text HPtxt;
-        [SerializeField] private TMP_Text Shieldtxt;
-
-        [SerializeField] private int hp = 5;
-        [SerializeField] private int shield = 0;
-        [SerializeField] private int speed = 1;
-
+        protected int hp = 5;
+        protected int shield = 0;
+        protected int speed = 1;
         public int Speed => speed;
-
-        //will move
-        private float currentActionTimePoint = 0f;
-        private BaseCard currentCard;
-        [SerializeField] private Image currentCardIcon;
 
         public void Setup(int hp, int shield, int speed)
         {
@@ -51,46 +44,17 @@ namespace TaoistFlip
             animator.Play("Attack");
         }
 
-        public void OnStartTurn()
+        public virtual void OnStartTurn()
         {
             SetShield(0);
         }
-
-        public void OnEndTurn()
-        {
-            // shield = 0;
-        }
-
-        public void SetCurrentCard(BaseCard card)
-        {
-            this.currentCard = card;
-            this.currentCardIcon.sprite = card.CardIcon;
-            this.currentCardIcon.transform.DOPunchScale(Vector3.one * 0.1f, 0.2f, 2, 1);
-        }
-
-        public void AutoDoAction(ActorController target)
-        {
-            if (currentCard != null)
-            {
-                currentCard.OnCardActive(this, target);
-            }
-        }
-
-        public void UpdateActionBar(float amount)
-        {
-            currentActionTimePoint = amount;
-            this.actionBar.transform.DOPunchScale(Vector3.one * 0.1f, 0.2f, 2, 1);
-            this.actionBar.DOValue(currentActionTimePoint, 0.25f);
-        }
-
+        public virtual void OnEndTurn() {}
         public void OnRaisedShield(int amount)
         {
             int currentShield = shield + amount;
             SetShield(currentShield);
             animator.Play("Attack");
         }
-
-
         private void SetHP(int amount)
         {
             hp = Mathf.Max(amount, 0);
