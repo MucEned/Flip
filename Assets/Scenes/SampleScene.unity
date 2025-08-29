@@ -400,17 +400,12 @@ MonoBehaviour:
   m_GameObject: {fileID: 50975052}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e550f5184356db643b476c7ee9126a52, type: 3}
+  m_Script: {fileID: 11500000, guid: 3cc6358f7da709f43bcf2f35915e95d0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   animator: {fileID: 1775061490}
-  actionBar: {fileID: 0}
   HPtxt: {fileID: 1844521088}
   Shieldtxt: {fileID: 1906029075}
-  hp: 5
-  shield: 0
-  speed: 10
-  currentCardIcon: {fileID: 0}
 --- !u!1 &52576635
 GameObject:
   m_ObjectHideFlags: 0
@@ -805,16 +800,13 @@ MonoBehaviour:
   m_GameObject: {fileID: 258135760}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e550f5184356db643b476c7ee9126a52, type: 3}
+  m_Script: {fileID: 11500000, guid: 0f85de6bd3a7e014a89a4d5c2a8fbd9b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   animator: {fileID: 449069204}
-  actionBar: {fileID: 1126834470}
   HPtxt: {fileID: 1796653722}
   Shieldtxt: {fileID: 879901058}
-  hp: 10
-  shield: 0
-  speed: 10
+  actionBar: {fileID: 1126834470}
   currentCardIcon: {fileID: 2021928754}
 --- !u!1 &268515966
 GameObject:
@@ -1020,6 +1012,7 @@ GameObject:
   - component: {fileID: 291544337}
   - component: {fileID: 291544338}
   - component: {fileID: 291544339}
+  - component: {fileID: 291544340}
   m_Layer: 0
   m_Name: GameManager
   m_TagString: Untagged
@@ -1070,10 +1063,21 @@ MonoBehaviour:
   opponent: {fileID: 258135762}
   playerData: {fileID: 11400000, guid: b8aada143bc654a4d92573cc0f0ab13b, type: 2}
   opponentData: {fileID: 11400000, guid: a4aae358c77447747baeb07420c0f17b, type: 2}
-  cardDictionary: {fileID: 11400000, guid: 3762402352c08c149ab75df59018ff2e, type: 2}
+--- !u!114 &291544340
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 291544336}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8169ad7ec6d8b654dbfc69452b35ff92, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  balancingConfig: {fileID: 11400000, guid: cc7c64e371982854aaa9d6181b57b689, type: 2}
   field: {fileID: 1867519244}
   resetButton: {fileID: 1660214252}
-  balanceTurn: 3
 --- !u!1 &306977315
 GameObject:
   m_ObjectHideFlags: 0
@@ -5036,7 +5040,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0d294799f18f69045a719dff2970d7df, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  controller: {fileID: 291544339}
+  controller: {fileID: 291544340}
   gridSize: 4
   fieldContainer: {fileID: 1867519240}
   cardSample:

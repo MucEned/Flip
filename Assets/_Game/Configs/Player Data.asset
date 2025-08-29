@@ -21,3 +21,5 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 2e5c1d6576900644e9aa41921a44376f, type: 2}
   - {fileID: 11400000, guid: 766e01ea0ced5e4469e3fc894e0d3d51, type: 2}
   - {fileID: 11400000, guid: acc03712f8a716a45b9f9553991db8c3, type: 2}
+  maxHP: 5
+  speed: 10

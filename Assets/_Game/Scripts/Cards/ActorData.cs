@@ -3,8 +3,8 @@ using UnityEngine;
 
 namespace TaoistFlip
 {
-    [CreateAssetMenu(fileName = "Player Data", menuName = "Player Data")]
-    public class PlayerCardData : ScriptableObject
+    [CreateAssetMenu(fileName = "Actor Data", menuName = "Actor Data")]
+    public class ActorData : ScriptableObject
     {
         public List<BaseCard> Deck;
         [SerializeField] private int maxHP;

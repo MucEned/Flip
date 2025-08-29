@@ -8,6 +8,7 @@ namespace TaoistFlip
     {
         private float currentActionPoint = 0f;
         private BaseCard currentCard;
+        [SerializeField] protected Slider actionBar;
         [SerializeField] private Image currentCardIcon;
 
         public float CurrentActionPoint => this.currentActionPoint;
@@ -15,6 +16,8 @@ namespace TaoistFlip
         {
             this.currentCard = card;
             this.currentCardIcon.sprite = card.CardIcon;
+            this.currentCardIcon.DOKill();
+            this.currentCardIcon.transform.localScale = Vector3.one;
             this.currentCardIcon.transform.DOPunchScale(Vector3.one * 0.1f, 0.2f, 2, 1);
         }
 
@@ -36,15 +39,16 @@ namespace TaoistFlip
         {
             currentActionPoint += amount;
             this.actionBar.DOKill();
+            this.actionBar.transform.localScale = Vector3.one;
             this.actionBar.transform.DOPunchScale(Vector3.one * 0.1f, 0.2f, 2, 1);
             this.actionBar.DOValue(currentActionPoint, 0.25f);
         }
 
         public void DrawCard()
         {
-            // int randomCard = UnityEngine.Random.Range(0, this.opponentData.Deck.Count);
-            // BaseCard currentCard = this.opponentData.Deck[randomCard];
-            // opponent.SetCurrentCard(currentCard);
+            int randomCard = UnityEngine.Random.Range(0, GetDeck().Count);
+            BaseCard currentCard = GetDeck()[randomCard];
+            SetCurrentCard(currentCard);
         }
     }
 }

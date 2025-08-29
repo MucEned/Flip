@@ -6,13 +6,14 @@ using System.Text.RegularExpressions;
 
 namespace TaoistFlip
 {
-    public class BattleController
+    public class BattleController : MonoBehaviour
     {
         [SerializeField] private BalancingConfig balancingConfig;
         [SerializeField] private FieldGridController field;
+        [SerializeField] private GameObject resetButton;
         private PlayerController player;
         private OpponentController opponent;
-        private eGameBattleState state;
+        private eGameBattleState state = eGameBattleState.None;
         private MatchData matchData = new();
         public void Setup(PlayerController player, OpponentController opponent)
         {
@@ -46,7 +47,6 @@ namespace TaoistFlip
             return this.state == checker;
         }
 
-
         public void ChangeMicroState(eGameBattleState newState)
         {
             if (this.state == newState)
@@ -56,22 +56,22 @@ namespace TaoistFlip
             switch (this.state)
             {
                 case eGameBattleState.PlayerStartTurn:
-                OnPlayerStartTurn();
+                    OnPlayerStartTurn();
                 break;
                 case eGameBattleState.PlayerActionTurn:
-                OnPlayerActionTurn();
+                    OnPlayerActionTurn();
                 break;
                 case eGameBattleState.PlayerEndTurn:
-                OnPlayerEndTurn();
+                    OnPlayerEndTurn();
                 break;
                 case eGameBattleState.OpponentStartTurn:
-                OnOpponentStartTurn();
+                    OnOpponentStartTurn();
                 break;
                 case eGameBattleState.OpponentActionTurn:
-                OnOpponentActionTurn();
+                    OnOpponentActionTurn();
                 break;
                 case eGameBattleState.OpponentEndTurn:
-                OnOpponentEndTurn();
+                    OnOpponentEndTurn();
                 break;
             }
         }
@@ -102,11 +102,12 @@ namespace TaoistFlip
 
         private void OnOpponentActionTurn()
         {
-            while (opponent.CurrentActionPoint > 1)
+            while (this.opponent.CurrentActionPoint > 1) //update later
             {
-                opponent.DoOpponentAction(this.player);
+                this.opponent.DoOpponentAction(this.player);
+                this.opponent.UpdateActionPoint(matchData.TimeForEachPlayerAction - 1);
             }
-            opponent.UpdateActionPoint(matchData.TimeForEachPlayerAction - 1);
+            ChangeMicroState(eGameBattleState.OpponentEndTurn);
         }
 
         private void OnOpponentEndTurn()
@@ -143,9 +144,9 @@ namespace TaoistFlip
             await UniTask.WaitForSeconds(1);
             foreach (var flippingCard in matchData.CurrentFlippingCards)
             {
-                flippingCard.FlipDown();
+                flippingCard.Flip(eState.FaceDown);
             }
-            OnPlayerEndTurn();
+            ChangeMicroState(eGameBattleState.PlayerEndTurn);
             matchData.CurrentFlippingCards.Clear();
         }
 
@@ -157,22 +158,13 @@ namespace TaoistFlip
             card1.ShowDown();
             card2.ShowDown();
             matchData.CurrentFlippingCards.Clear();
-            SetPlayerEndTurn();
-        }
-
-
-
-
-
-
-        private void SetPlayerEndTurn() //Update
-        {
             ChangeMicroState(eGameBattleState.PlayerEndTurn);
         }
     }
 
     public enum eGameBattleState
     {
+        None,
         PlayerStartTurn,
         PlayerActionTurn,
         PlayerEndTurn,

@@ -13,9 +13,9 @@ namespace TaoistFlip
         [SerializeField] private Sprite backSprite;
         private BaseCard cardData;
         private eState state = eState.FaceDown;
-        private Action<CardComponent> OnCardFlip;
+        private Func<CardComponent, bool> OnCardFlip;
         public BaseCard CardData => this.cardData;
-        public void Init(BaseCard cardData, (int, int) position, Action<CardComponent> OnCardFlip)
+        public void Init(BaseCard cardData, (int, int) position, Func<CardComponent, bool> OnCardFlip)
         {
             this.cardData = cardData;
             this.Position = position;
@@ -25,22 +25,20 @@ namespace TaoistFlip
             this.state = eState.FaceDown;
         }
 
-        public void Flip()
+        public void Flip(eState newState)
         {
-            switch (state)
+            switch (newState)
             {
                 case eState.FaceDown:
-                    FlipUp();
-                break;
-                case eState.FaceUp:
                     FlipDown();
                 break;
+                case eState.FaceUp:
+                    FlipUp();
+                break;
             }
-
-            this.OnCardFlip?.Invoke(this);
         }
 
-        public void FlipDown()
+        private void FlipDown()
         {   
             this.mainIcon.transform.DOPunchScale(Vector3.one * 0.1f, 0.2f, 2, 1);
             this.mainIcon.transform.DOShakeRotation(0.2f, 45, 2, 1);
@@ -48,13 +46,16 @@ namespace TaoistFlip
             this.state = eState.FaceDown;
         }
 
-        public void FlipUp()
+        private void FlipUp()
         {
-            this.mainIcon.transform.DOPunchScale(Vector3.one * 0.1f, 0.2f, 2, 1);
-            this.mainIcon.transform.DOShakeRotation(0.2f, 45, 2, 1);
-            this.mainIcon.sprite = cardData.CardIcon;
-            this.state = eState.FaceUp;
-            this.OnCardFlip?.Invoke(this);
+            bool isSuccess = this.OnCardFlip.Invoke(this);
+            if (isSuccess)
+            {
+                this.mainIcon.transform.DOPunchScale(Vector3.one * 0.1f, 0.2f, 2, 1);
+                this.mainIcon.transform.DOShakeRotation(0.2f, 45, 2, 1);
+                this.mainIcon.sprite = cardData.CardIcon;
+                this.state = eState.FaceUp;
+            }
         }
 
         public void ShowDown()
@@ -65,10 +66,7 @@ namespace TaoistFlip
 
         public void OnCardTap()
         {
-            if (FlipGameController.Instance.ActionPhase)
-            {
-                FlipUp(); //test
-            }
+            Flip(eState.FaceUp);
         }
 
         public void OnCardHold()

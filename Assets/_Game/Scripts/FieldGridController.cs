@@ -61,9 +61,9 @@ namespace TaoistFlip
             return result;
         }
 
-        private void OnCardFlip(CardComponent card)
+        private bool OnCardFlip(CardComponent card)
         {
-            controller.OnCardFlip(card);
+            return controller.OnCardFlip(card);
         }
     }
 }

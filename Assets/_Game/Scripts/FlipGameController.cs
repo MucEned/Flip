@@ -11,16 +11,13 @@ namespace TaoistFlip
         public static FlipGameController Instance { get; private set;}
         [SerializeField] private PlayerController player;
         [SerializeField] private OpponentController opponent;
-        [SerializeField] private PlayerCardData playerData;
-        [SerializeField] private PlayerCardData opponentData;
-        [SerializeField] private CardDictionary cardDictionary;
-        [SerializeField] private GameObject resetButton;
+        [SerializeField] private ActorData playerData;
+        [SerializeField] private ActorData opponentData;
+        [SerializeField] private BattleController battleController;
 
-        private BattleController battleController;
         public bool ActionPhase {get; private set;}
 
-        private eGameState mainState;
-        private eGameBattleState microState;
+        private eGameState mainState = eGameState.None;
 
         private void Awake()
         {
@@ -76,18 +73,19 @@ namespace TaoistFlip
 //-------------------------------------------------
         private void LoadPlayerData()
         {
-            
+            this.player.Setup(playerData);
         }
 
         private void LoadOpponent()
         {
-            
+            this.opponent.Setup(opponentData);
         }
 //-------------------------------------------------
     }
 
     public enum eGameState
     {
+        None,
         Starting,
         BattlePhase,
         Ending,
@@ -99,5 +97,12 @@ namespace TaoistFlip
         public int MaxFlipCard = 2;
         public float TimeForEachPlayerAction = 0f;
         public List<CardComponent> CurrentFlippingCards = new();
+        public MatchData()
+        {
+            Turn = 0;
+            MaxFlipCard = 2;
+            TimeForEachPlayerAction = 0f;
+            CurrentFlippingCards = new();
+        }
     }
 }
