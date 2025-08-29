@@ -1,5 +1,6 @@
 using UnityEngine.UI;
 using UnityEngine;
+using System;
 using DG.Tweening;
 
 namespace TaoistFlip
@@ -12,6 +13,12 @@ namespace TaoistFlip
         [SerializeField] private Image currentCardIcon;
 
         public float CurrentActionPoint => this.currentActionPoint;
+        public override void Setup(ActorData actorData, Action OnActorDead)
+        {
+            base.Setup(actorData, OnActorDead);
+            UpdateActionPoint(0);
+        }
+
         public void SetCurrentCard(BaseCard card)
         {
             this.currentCard = card;

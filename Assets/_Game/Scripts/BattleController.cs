@@ -11,6 +11,7 @@ namespace TaoistFlip
         [SerializeField] private BalancingConfig balancingConfig;
         [SerializeField] private FieldGridController field;
         [SerializeField] private GameObject resetButton;
+        [SerializeField] private CanvasGroup UICanvas;
         [SerializeField] private TMP_Text phaseDebug;
         private PlayerController player;
         private OpponentController opponent;
@@ -32,6 +33,11 @@ namespace TaoistFlip
         {
             opponent.DrawCard();
             ChangeMicroState(eGameBattleState.PlayerStartTurn).Forget();
+        }
+
+        public void EndGame()
+        {
+            ChangeMicroState(eGameBattleState.None).Forget();
         }
 
         public void ResetField()
@@ -95,11 +101,14 @@ namespace TaoistFlip
 
         private void OnPlayerActionTurn()
         {
+            UICanvas.alpha = 1;
+            isBocking = false;
             //OnChangeMicroState(eGameMicroState.PlayerActionPhase).Forget();
         }
 
         private void OnPlayerEndTurn()
         {
+            UICanvas.alpha = 0.2f;
             this.player.OnEndTurn();
             isBocking = false;
             ChangeMicroState(eGameBattleState.OpponentStartTurn).Forget();

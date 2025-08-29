@@ -27,12 +27,13 @@ namespace TaoistFlip
         protected int speed = 1;
         public int Speed => speed;
 
-        public void Setup(ActorData actorData, Action OnActorDead)
+        public virtual void Setup(ActorData actorData, Action OnActorDead)
         {
             this.data = actorData;
             this.maxHP = this.data.MaxHP;
             this.OnActorDead = OnActorDead;
 
+            animator.SetTrigger("Idle");
             SetHP(this.data.MaxHP);
             SetShield(0);
             this.speed = this.data.Speed;
@@ -41,22 +42,23 @@ namespace TaoistFlip
         public void OnAttacked(int dmg)
         {
             int currentHP = hp - Mathf.Max(dmg - shield, 0);
+            if (currentHP > 0)
+                animator.SetTrigger("GetHit");        
             SetHP(currentHP);
             SetShield(shield - dmg);
-            animator.Play("GetHit");
             hitVFX.Play();
         }
 
         public void OnAttack(int dmg)
         {
-            animator.Play("Attack");
+            animator.SetTrigger("Attack");
         }
 
         public void OnHealed(int amount)
         {
             int currentHP = hp + amount;
+            animator.SetTrigger("Attack");
             SetHP(currentHP);
-            animator.Play("Attack");
             healVFX.Play();
         }
 
@@ -68,8 +70,8 @@ namespace TaoistFlip
         public void OnRaisedShield(int amount)
         {
             int currentShield = shield + amount;
+            animator.SetTrigger("Attack");
             SetShield(currentShield);
-            animator.Play("Attack");
             shieldVFX.Play();
         }
         private void SetHP(int amount)
@@ -104,6 +106,7 @@ namespace TaoistFlip
 
         private void Dead()
         {
+            animator.SetTrigger("Dead");
             OnActorDead?.Invoke();
         }
     }

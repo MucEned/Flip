@@ -1,5 +1,7 @@
 using UnityEngine;
 using System.Collections.Generic;
+using Cysharp.Threading.Tasks;
+using UnityEngine.SceneManagement;
 
 namespace TaoistFlip
 {
@@ -64,12 +66,18 @@ namespace TaoistFlip
 
         private void OnEndBattle()
         {
-            
+            battleController.EndGame();
+            ChangeMainState(eGameState.Ending);
         }
         
 //-------------------------------------------------
+        private bool wasPlayerLoaded = false;
         private void LoadPlayerData()
         {
+            if (wasPlayerLoaded)
+                return;
+            
+            wasPlayerLoaded = true;
             this.player.Setup(playerData, OnPlayerDead);
         }
         private void LoadOpponent()
@@ -78,13 +86,25 @@ namespace TaoistFlip
         }
         private void OnPlayerDead()
         {
-            //Endgame
+            OnEndBattle();
+            ReloadScene().Forget();
         }
         private void OnOpponentDead()
         {
-            //Load another opponent
+            OnEndBattle();
+            ReSpawnOpponent().Forget();
         }
-//-------------------------------------------------
+//------TEMP-------------------------------------------
+        private async UniTask ReloadScene()
+        {
+            await UniTask.WaitForSeconds(1f);
+            SceneManager.LoadScene("SampleScene");
+        }
+        private async UniTask ReSpawnOpponent()
+        {
+            await UniTask.WaitForSeconds(1f);
+            ChangeMainState(eGameState.Starting);
+        }
     }
 
     public enum eGameState
