@@ -1,8 +1,5 @@
 using UnityEngine;
 using System.Collections.Generic;
-using Cysharp.Threading.Tasks;
-using Unity.VisualScripting;
-using System.Text.RegularExpressions;
 
 namespace TaoistFlip
 {
@@ -73,12 +70,19 @@ namespace TaoistFlip
 //-------------------------------------------------
         private void LoadPlayerData()
         {
-            this.player.Setup(playerData);
+            this.player.Setup(playerData, OnPlayerDead);
         }
-
         private void LoadOpponent()
         {
-            this.opponent.Setup(opponentData);
+            this.opponent.Setup(opponentData, OnOpponentDead);
+        }
+        private void OnPlayerDead()
+        {
+            //Endgame
+        }
+        private void OnOpponentDead()
+        {
+            //Load another opponent
         }
 //-------------------------------------------------
     }

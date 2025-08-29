@@ -23,9 +23,10 @@ namespace TaoistFlip
 
         private void AutoDoAction(ActorController target)
         {
-            if (currentCard != null)
+            if (currentCard != null && currentActionPoint >= 1)
             {
                 currentCard.OnCardActive(this, target);
+                UpdateActionPoint(currentActionPoint - 1);
             }
         }
 
@@ -35,9 +36,15 @@ namespace TaoistFlip
             DrawCard();
         }
 
+        public void AddActionPoint(float amount)
+        {
+            float newPoint = currentActionPoint + amount;
+            UpdateActionPoint(newPoint);
+        }
+
         public void UpdateActionPoint(float amount)
         {
-            currentActionPoint += amount;
+            currentActionPoint = amount;
             this.actionBar.DOKill();
             this.actionBar.transform.localScale = Vector3.one;
             this.actionBar.transform.DOPunchScale(Vector3.one * 0.1f, 0.2f, 2, 1);

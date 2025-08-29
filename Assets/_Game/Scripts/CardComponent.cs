@@ -48,6 +48,9 @@ namespace TaoistFlip
 
         private void FlipUp()
         {
+            if (this.state != eState.FaceDown)
+                return;
+                
             bool isSuccess = this.OnCardFlip.Invoke(this);
             if (isSuccess)
             {

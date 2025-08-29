@@ -1,8 +1,8 @@
 using UnityEngine;
-using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
-using Unity.VisualScripting;
-using System.Text.RegularExpressions;
+using TMPro;
+using DG.Tweening;
+using System;
 
 namespace TaoistFlip
 {
@@ -11,6 +11,7 @@ namespace TaoistFlip
         [SerializeField] private BalancingConfig balancingConfig;
         [SerializeField] private FieldGridController field;
         [SerializeField] private GameObject resetButton;
+        [SerializeField] private TMP_Text phaseDebug;
         private PlayerController player;
         private OpponentController opponent;
         private eGameBattleState state = eGameBattleState.None;
@@ -24,13 +25,13 @@ namespace TaoistFlip
         }
         private void CalculateSpeed()
         {
-            matchData.TimeForEachPlayerAction = 1f / (balancingConfig.BalanceTurn * ((float)player.Speed / (float)opponent.Speed));
+            matchData.TimeForEachPlayerAction = (float)Math.Ceiling(100f / (balancingConfig.BalanceTurn * ((float)player.Speed / (float)opponent.Speed))) / 100f;
         }
 
         public void StartGame()
         {
             opponent.DrawCard();
-            ChangeMicroState(eGameBattleState.PlayerStartTurn);
+            ChangeMicroState(eGameBattleState.PlayerStartTurn).Forget();
         }
 
         public void ResetField()
@@ -39,7 +40,15 @@ namespace TaoistFlip
                 return;
 
             field.GenerateField(this.player);
-            ChangeMicroState(eGameBattleState.PlayerEndTurn);
+            ChangeMicroState(eGameBattleState.PlayerEndTurn).Forget();
+        }
+
+        public void Wait()
+        {
+            if (!IsState(eGameBattleState.PlayerActionTurn))
+                return;
+
+            ClearHand();
         }
 
         public bool IsState(eGameBattleState checker)
@@ -47,12 +56,14 @@ namespace TaoistFlip
             return this.state == checker;
         }
 
-        public void ChangeMicroState(eGameBattleState newState)
+        public async UniTask ChangeMicroState(eGameBattleState newState)
         {
             if (this.state == newState)
                 return;
 
             this.state = newState;
+            UpdatePhaseText();
+            await UniTask.WaitForSeconds(0.5f);
             switch (this.state)
             {
                 case eGameBattleState.PlayerStartTurn:
@@ -79,25 +90,26 @@ namespace TaoistFlip
         private void OnPlayerStartTurn()
         {
             this.player.OnStartTurn();
-            ChangeMicroState(eGameBattleState.PlayerActionTurn);
+            ChangeMicroState(eGameBattleState.PlayerActionTurn).Forget();
         }
 
         private void OnPlayerActionTurn()
         {
-            //OnChangeMicroState(eGameMicroState.PlayerActionPhase);
+            //OnChangeMicroState(eGameMicroState.PlayerActionPhase).Forget();
         }
 
         private void OnPlayerEndTurn()
         {
             this.player.OnEndTurn();
-            ChangeMicroState(eGameBattleState.OpponentStartTurn);
+            isBocking = false;
+            ChangeMicroState(eGameBattleState.OpponentStartTurn).Forget();
         }
 
         private void OnOpponentStartTurn()
         {
             this.opponent.OnStartTurn();
-            this.opponent.UpdateActionPoint(matchData.TimeForEachPlayerAction);
-            ChangeMicroState(eGameBattleState.OpponentActionTurn);
+            this.opponent.AddActionPoint(matchData.TimeForEachPlayerAction);
+            ChangeMicroState(eGameBattleState.OpponentActionTurn).Forget();
         }
 
         private void OnOpponentActionTurn()
@@ -105,28 +117,31 @@ namespace TaoistFlip
             while (this.opponent.CurrentActionPoint > 1) //update later
             {
                 this.opponent.DoOpponentAction(this.player);
-                this.opponent.UpdateActionPoint(matchData.TimeForEachPlayerAction - 1);
             }
-            ChangeMicroState(eGameBattleState.OpponentEndTurn);
+            ChangeMicroState(eGameBattleState.OpponentEndTurn).Forget();
         }
 
         private void OnOpponentEndTurn()
         {
             this.opponent.OnEndTurn();
-            ChangeMicroState(eGameBattleState.PlayerStartTurn);
+            ChangeMicroState(eGameBattleState.PlayerStartTurn).Forget();
         }
 
 //-----------------------------
-
+        private bool isBocking = false;
         public bool OnCardFlip(CardComponent card)
         {
             if (!IsState(eGameBattleState.PlayerActionTurn))
+                return false;
+
+            if (isBocking)
                 return false;
 
             foreach (var flippingCard in matchData.CurrentFlippingCards)
             {
                 if (flippingCard.CardData.CardID == card.CardData.CardID)
                 {
+                    isBocking = true;
                     OnScore(flippingCard, card).Forget();
                     return true;
                 }
@@ -134,6 +149,7 @@ namespace TaoistFlip
             matchData.CurrentFlippingCards.Add(card);
             if (matchData.CurrentFlippingCards.Count >= matchData.MaxFlipCard)
             {
+                isBocking = true;
                 FlipDown().Forget();
             }
             return true;
@@ -142,11 +158,16 @@ namespace TaoistFlip
         private async UniTask FlipDown()
         {
             await UniTask.WaitForSeconds(1);
+            ClearHand();
+        }
+
+        private void ClearHand()
+        {
             foreach (var flippingCard in matchData.CurrentFlippingCards)
             {
                 flippingCard.Flip(eState.FaceDown);
             }
-            ChangeMicroState(eGameBattleState.PlayerEndTurn);
+            ChangeMicroState(eGameBattleState.PlayerEndTurn).Forget();
             matchData.CurrentFlippingCards.Clear();
         }
 
@@ -158,9 +179,18 @@ namespace TaoistFlip
             card1.ShowDown();
             card2.ShowDown();
             matchData.CurrentFlippingCards.Clear();
-            ChangeMicroState(eGameBattleState.PlayerEndTurn);
+            ChangeMicroState(eGameBattleState.PlayerEndTurn).Forget();
+        }
+//-----DEBUG
+        private void UpdatePhaseText()
+        {
+            this.phaseDebug.transform.DOKill();
+            this.phaseDebug.transform.localScale = Vector3.one;
+            this.phaseDebug.transform.DOPunchScale(Vector3.one * 0.1f, 0.2f, 2, 1);
+            this.phaseDebug.text = this.state.ToString();
         }
     }
+//-------------------
 
     public enum eGameBattleState
     {
