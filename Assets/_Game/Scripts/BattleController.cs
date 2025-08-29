@@ -188,7 +188,7 @@ namespace TaoistFlip
             card1.ShowDown();
             card2.ShowDown();
             matchData.CurrentFlippingCards.Clear();
-            ChangeMicroState(eGameBattleState.PlayerEndTurn).Forget();
+            isBocking = false;
         }
 //-----DEBUG
         private void UpdatePhaseText()
